@@ -1,32 +1,78 @@
-import React from 'react';
-import { StyleSheet, View, Button, Image, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  Dimensions,
+  ScrollView,
+  ImageBackground,
+} from 'react-native';
 import BodyText from '../components/BodyText';
 import TitleText from '../components/TitleText';
 import Colors from '../constants/colors';
 import MainButton from '../components/MainButton';
 
 const GameOverScreen = (props) => {
+  const [deviceWidth, setDeviceWidth] = useState(
+    Dimensions.get('window').height
+  );
+
+  useEffect(() => {
+    const updateLayout = () => {
+      setDeviceWidth(Dimensions.get('window').height);
+    };
+
+    Dimensions.addEventListener('change', updateLayout);
+
+    return () => Dimensions.removeEventListener('change', updateLayout);
+  });
+
+  let imageDimensions = {
+    width: Dimensions.get('window').width * 0.7,
+    height: Dimensions.get('window').width * 0.7,
+    borderRadius: (Dimensions.get('window').width * 0.7) / 2,
+  };
+
+  if (deviceWidth < 400) {
+    imageDimensions = {
+      width: Dimensions.get('window').width * 0.3,
+      height: Dimensions.get('window').width * 0.3,
+      borderRadius: (Dimensions.get('window').width * 0.3) / 2,
+    };
+  }
+
   return (
-    <View style={styles.screen}>
-      <TitleText>The Game is Over</TitleText>
-      <View style={styles.imageContainer}>
-        <Image
-          source={require('../assets/success.png')}
-          style={styles.image}
-          resizeMode="cover"
-          // fadeDuration={1000}
-        />
+    // eslint-disable-next-line react-native/no-inline-styles
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      {/* <ImageBackground
+        source={require('../assets/success.png')}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+        // fadeDuration={1000}
+      > */}
+      <View style={styles.screen}>
+        <TitleText>The Game is Over</TitleText>
+        <View style={{ ...styles.imageContainer, ...imageDimensions }}>
+          <Image
+            source={require('../assets/success.png')}
+            style={styles.image}
+            resizeMode="cover"
+            // fadeDuration={1000}
+          />
+        </View>
+        <View style={styles.resultContainer}>
+          <BodyText style={styles.resultText}>
+            Your Phone Needed{' '}
+            <Text style={styles.hightlight}>{props.roundsNumber}</Text> Rounds
+            to Guess the Number{' '}
+            <Text style={styles.hightlight}>{props.userNumber}</Text>
+          </BodyText>
+        </View>
+        <MainButton onPress={props.onRestart}>New Game</MainButton>
       </View>
-      <View style={styles.resultContainer}>
-        <BodyText style={styles.resultText}>
-          Your Phone Needed{' '}
-          <Text style={styles.hightlight}>{props.roundsNumber}</Text> Rounds to
-          Guess the Number{' '}
-          <Text style={styles.hightlight}>{props.userNumber}</Text>
-        </BodyText>
-      </View>
-      <MainButton onPress={props.onRestart}>New Game</MainButton>
-    </View>
+      {/* </ImageBackground> */}
+    </ScrollView>
   );
 };
 
@@ -37,20 +83,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 10,
   },
   image: {
     width: '100%',
     height: '100%',
   },
   imageContainer: {
-    borderRadius: 150,
     borderColor: 'black',
     borderWidth: 3,
-    width: 300,
-    maxWidth: '80%',
-    height: 300,
     overflow: 'hidden',
-    marginVertical: 30,
+    marginVertical: Dimensions.get('window').height / 30,
   },
   hightlight: {
     color: Colors.primary,
@@ -58,10 +101,10 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     marginHorizontal: 30,
-    marginVertical: 15,
+    marginVertical: Dimensions.get('window').height / 60,
   },
   resultText: {
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: Dimensions.get('window').height < 400 ? 16 : 20,
   },
 });
